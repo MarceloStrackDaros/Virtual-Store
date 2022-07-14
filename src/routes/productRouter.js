@@ -1,9 +1,6 @@
+import { Router } from 'express'
 
-const bodyParser = require("body-parser")
-const express = require("express")
-const server = express()
-server.use(bodyParser.json())
-server.use(bodyParser.urlencoded({ extended: false }))
+const productRouter = new Router()
 
 let produtos = [
   { 
@@ -23,17 +20,11 @@ let produtos = [
   }
 ]
 
-const displayProducts = () => {
-  produtos.forEach((produto) => {
-    console.log(' ', produto.tipo, produto.modelo, produto.marca, ' ')
-  })
-}
-
-server.get('/produtos', (req, res) => {
+productRouter.get('/', (req, res) => {
   return res.status(200).send(produtos)
 })
 
-server.post('/produtos', (req, res) => {
+productRouter.post('/', (req, res) => {
 
   console.log(req.body)
   const { tipo, modelo, marca } = req.body
@@ -46,7 +37,7 @@ server.post('/produtos', (req, res) => {
   return res.status(200).send(`Produto adicionado!`)
 })
 
-server.patch('/produtos', (req, res) => {
+productRouter.patch('/', (req, res) => {
 
   let index = produtos.findIndex((produto) => produto.modelo === req.body.modelo)
 
@@ -58,7 +49,7 @@ server.patch('/produtos', (req, res) => {
   return res.status(200).send(`Produto ${produtos[index].modelo} alterado!`)
 })
 
-server.delete('/produtos', (req, res) => {
+productRouter.delete('/', (req, res) => {
 
   let index = produtos.findIndex((produto) => produto.modelo === req.body.modelo)
 
@@ -70,6 +61,4 @@ server.delete('/produtos', (req, res) => {
   return res.status(200).send((`Produto deletado!`))
 })
 
-server.listen(3000, () => {
-  console.log("Listening on port 3000")
-})
+export default productRouter;
