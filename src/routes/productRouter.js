@@ -1,64 +1,39 @@
 import { Router } from 'express'
+import { searchProducts, saveNewProduct, updateProduct, removeProduct } from '../models/product.js'
 
 const productRouter = new Router()
 
-let produtos = [
-  { 
-    tipo: "celular",
-    modelo: "iPhone 13 Pro",
-    marca: "Apple"
-  },
-  {
-    tipo: "celular",
-    modelo: "Redmi note 11s",
-    marca: "Xiaomi"
-  },
-  {
-    tipo: "celular",
-    modelo: "Galaxy S22",
-    marca: "Samsung"
+const checkStatus = (productStatus, res) => {
+  if (productStatus.startsWith("Produto não encontrado")) {
+    return res.status(404).send(productStatus)
   }
-]
+  return res.status(200).send(productStatus)
+}
 
 productRouter.get('/', (req, res) => {
-  return res.status(200).send(produtos)
+  return res.status(200).json(searchProducts())
 })
 
 productRouter.post('/', (req, res) => {
 
-  console.log(req.body)
-  const { tipo, modelo, marca } = req.body
+  const { type, name, brand } = req.body
 
-  if (!tipo || !modelo || !marca) {
+  if (!type || !name || !brand) {
     return res.status(404).send("Favor preencha todos os campos obrigatórios tipo, modelo e marca")
   }
 
-  produtos.push(req.body)
-  return res.status(200).send(`Produto adicionado!`)
+  let newProduct = saveNewProduct(req.body)
+  return res.status(201).send(`Produto ${newProduct} adicionado!`)
 })
 
-productRouter.patch('/', (req, res) => {
-
-  let index = produtos.findIndex((produto) => produto.modelo === req.body.modelo)
-
-  if (index === -1) {
-    return res.status(404).send("Produto não encontrado, especifique-o pelo modelo")
-  }
-
-  produtos[index] = {...produtos[index], ...req.body}
-  return res.status(200).send(`Produto ${produtos[index].modelo} alterado!`)
+productRouter.put('/:id', (req, res) => {
+  let productStatus = updateProduct(req.params.id, req.body)
+  checkStatus(productStatus, res)
 })
 
-productRouter.delete('/', (req, res) => {
-
-  let index = produtos.findIndex((produto) => produto.modelo === req.body.modelo)
-
-  if (index === -1) {
-    return res.status(404).send("Produto não encontrado, especifique-o pelo modelo")
-  }
-
-  produtos.splice(index, 1)
-  return res.status(200).send((`Produto deletado!`))
+productRouter.delete('/:id', (req, res) => {
+  let productStatus = removeProduct(req.params.id)
+  checkStatus(productStatus, res)
 })
 
 export default productRouter;
