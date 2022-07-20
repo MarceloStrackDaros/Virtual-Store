@@ -1,59 +1,64 @@
-let nextId = 4
+import mongoose from 'mongoose';
+
+const ProductModel = mongoose.model('Product', {
+  name: String,
+  categoria: String,
+  brand: String,
+  // precoCliente: Number,
+  // precoCusto: Number,
+});
 
 const products = [
   { 
-    id: 1,
     type: "celular",
-    name: "iPhone 13 Pro",
+    name: "iPhone 12 mini",
     brand: "Apple"
   },
   {
-    id: 2,
     type: "celular",
     name: "Redmi note 11s",
     brand: "Xiaomi"
   },
   {
-    id: 3,
     type: "celular",
     name: "Galaxy S22",
     brand: "Samsung"
   }
 ]
 
-export const searchProducts = () => {
+export const searchOneProduct = async (id) => {
+  return await ProductModel.find(id)
+}
+
+export const searchProducts = async () => {
+  const products = await ProductModel.find()
   return products
 }
 
-export const saveNewProduct = (body) => {
-  const newProduct = {
-    id: proxId,
-    ...body
-  }
+export const saveNewProduct = async (type, name, brand) => {
+  const newProduct = new ProductModel({
+    type,
+    name,
+    brand
+  })
 
-  nextId++
-  products.push(newProduct)
-  return newProduct.model
+  await newProduct.save()
+  return newProduct.name
 }
 
-export const updateProduct = (reqId, body) => {
-  const index = products.findIndex((product) => product.id.toString() == reqId)
+export const updateProduct = async (reqId, type, name, brand) => {
+  // const index = products.findIndex((product) => product.id.toString() == reqId)
+  const product = await ProductModel.findById(reqId)
 
-  if (index === -1) {
-    return "Produto não encontrado, verifique o índice!"
-  }
-
-  products[index] = {...products[index], ...body}
-  return `Produto ${products[index].name} alterado!`
-}
-
-export const removeProduct = (reqId) => {
-  const index = products.findIndex((product) => product.id.toString() == reqId)
-
-  if (index === -1) {
-    return "Produto não encontrado, verifique o índice!"
-  }
+  product.name = name
+  product.type = type
+  product.brand = brand
   
-  const deletedProduct = products.splice(index, 1)[0]
-  return `Produto ${deletedProduct.name} deletado!`
+  product.save()
+  return `Produto ${product.name} alterado!`
+}
+
+export const removeProduct = async (product) => {
+  await ProductModel.deleteOne(product)
+  // return `Produto ${deletedProduct.name} deletado!`
 }
