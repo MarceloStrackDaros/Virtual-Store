@@ -11,19 +11,19 @@ const checkStatus = (productStatus, res) => {
 }
 
 productRouter.get('/', async (req, res) => {
-  return await res.status(200).json(searchProducts())
+  const produtos = await searchProducts()
+  return res.status(200).json(produtos)
 })
 
 productRouter.post('/', async (req, res) => {
-
   const { type, name, brand } = req.body
 
   if (!type || !name || !brand) {
     return res.status(404).send("Favor preencha todos os campos obrigatórios tipo, modelo e marca")
   }
 
-  let newProduct = await saveNewProduct(type, name, brand)
-  return res.status(201).send(`Produto ${newProduct} adicionado!`)
+  const productStatus = await saveNewProduct(type, name, brand)
+  return res.status(201).send(productStatus)
 })
 
 productRouter.put('/:id', async (req, res) => {
@@ -37,14 +37,13 @@ productRouter.put('/:id', async (req, res) => {
   return res.status(200).send(productStatus)
 })
 
-productRouter.delete('/', async (req, res) => {
-  let productStatus = await removeProduct(req.body)
+productRouter.delete('/:id', async (req, res) => {
+  const productStatus = await removeProduct(req.params.id)
 
-  if (!req.body.id) {
-    return res.status(404).send("Favor informe o ID do produto a ser deletado")
-  }
-
-  return res.status(200).send("Produto deletado!")
+  // if (!req.body.id) {
+  //   return res.status(404).send("Favor informe o ID do produto a ser deletado")
+  // }
+  return res.status(200).send(productStatus)
 })
 
 export default productRouter;

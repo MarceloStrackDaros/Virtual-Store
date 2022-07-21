@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const ProductModel = mongoose.model('Product', {
   name: String,
-  categoria: String,
+  type: String,
   brand: String,
   // precoCliente: Number,
   // precoCusto: Number,
@@ -31,8 +31,7 @@ export const searchOneProduct = async (id) => {
 }
 
 export const searchProducts = async () => {
-  const products = await ProductModel.find()
-  return products
+  return await ProductModel.find()
 }
 
 export const saveNewProduct = async (type, name, brand) => {
@@ -42,8 +41,8 @@ export const saveNewProduct = async (type, name, brand) => {
     brand
   })
 
-  await newProduct.save()
-  return newProduct.name
+  const createdProduct = await newProduct.save()
+  return `Produto ${createdProduct.name} criado!`
 }
 
 export const updateProduct = async (reqId, type, name, brand) => {
@@ -54,11 +53,11 @@ export const updateProduct = async (reqId, type, name, brand) => {
   product.type = type
   product.brand = brand
   
-  product.save()
-  return `Produto ${product.name} alterado!`
+  const modifiedProduct = await product.save()
+  return `Produto ${modifiedProduct.name} alterado!`
 }
 
-export const removeProduct = async (product) => {
-  await ProductModel.deleteOne(product)
-  // return `Produto ${deletedProduct.name} deletado!`
+export const removeProduct = async (reqId) => {
+  const deletedProduct = await ProductModel.findByIdAndDelete(reqId)
+  return `Produto ${deletedProduct.name} deletado!`
 }
